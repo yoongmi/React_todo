@@ -1,12 +1,62 @@
 import React from "react";
-import { createGlobalStyle } from "styled-components";
-import ToDoList from "./components/ToDoList";
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { useRecoilState } from "recoil";
+import styled, { createGlobalStyle } from "styled-components";
+import { toDoState } from "./atoms";
+import Board from "./components/Dragable/Board";
 
 function App() {
+  const [toDos, setToDos] = useRecoilState(toDoState);
+  //드래그가 끝났을 때 실행되는 수식.
+  const onDragEnd = (info: DropResult) => {
+    const { destination, source } = info;
+    //source : 어디서
+    //destination : 어디로
+    if (!destination) return;
+    if (destination?.droppableId === source.droppableId) {
+      //같은보드에서 아이템 이동
+      setToDos((oldToDos) => {
+        const boardCopy = [...oldToDos[source.droppableId]];
+        const taskObj = boardCopy[source.index];
+        // delete item.
+        boardCopy.splice(source.index, 1);
+        // add item
+        boardCopy.splice(destination?.index, 0, taskObj);
+        return {
+          ...oldToDos,
+          [source.droppableId]: boardCopy,
+        };
+      });
+    }
+    if (destination.droppableId !== source.droppableId) {
+      //다른보드로 아이템이동
+      setToDos((allBoards) => {
+        const sourceBoard = [...allBoards[source.droppableId]];
+        const taskObj = sourceBoard[source.index];
+        const destinationBoard = [...allBoards[destination.droppableId]];
+        sourceBoard.splice(source.index, 1);
+        destinationBoard.splice(destination?.index, 0, taskObj);
+        return {
+          ...allBoards,
+          [source.droppableId]: sourceBoard,
+          [destination.droppableId]: destinationBoard,
+        };
+      });
+    }
+  };
   return (
     <>
       <GlobalStyle />
-      <ToDoList />
+
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Wrapper>
+          <Boards>
+            {Object.keys(toDos).map((boardId) => (
+              <Board boardId={boardId} key={boardId} toDos={toDos[boardId]} />
+            ))}
+          </Boards>
+        </Wrapper>
+      </DragDropContext>
     </>
   );
 }
@@ -47,6 +97,7 @@ footer, header, hgroup, menu, nav, section {
 }
 body {
 	line-height: 1;
+	background-color:${(props) => props.theme.bgColor}
 }
 ol, ul {
 	list-style: none;
@@ -67,6 +118,23 @@ a {
   text-decoration:none;
   color:inherit;
 }
+`;
+
+const Boards = styled.div`
+  display: grid;
+  width: 100%;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 `;
 
 export default App;

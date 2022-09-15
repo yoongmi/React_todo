@@ -2,7 +2,12 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
-import { categories, categoryState, toDoSelector, toDoState } from "./atoms";
+import {
+  categories,
+  categoryState,
+  toDoSelector,
+  toDoState,
+} from "../../atoms2";
 import CreateToDo from "./CreateToDo";
 import ToDo from "./ToDo";
 
