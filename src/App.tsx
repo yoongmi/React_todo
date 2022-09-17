@@ -1,9 +1,10 @@
 import React from "react";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useRecoilState } from "recoil";
 import styled, { createGlobalStyle } from "styled-components";
 import { toDoState } from "./atoms";
 import Board from "./components/Dragable/Board";
+import CreateBoard from "./components/Dragable/CreateBoard";
 
 function App() {
   const [toDos, setToDos] = useRecoilState(toDoState);
@@ -44,19 +45,23 @@ function App() {
       });
     }
   };
+
   return (
     <>
       <GlobalStyle />
-
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Wrapper>
-          <Boards>
-            {Object.keys(toDos).map((boardId) => (
-              <Board boardId={boardId} key={boardId} toDos={toDos[boardId]} />
-            ))}
-          </Boards>
-        </Wrapper>
-      </DragDropContext>
+      <TodoList>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <H2>To Do List</H2>
+          <CreateBoard />
+          <Wrapper>
+            <Boards>
+              {Object.keys(toDos).map((boardId) => (
+                <Board boardId={boardId} key={boardId} toDos={toDos[boardId]} />
+              ))}
+            </Boards>
+          </Wrapper>
+        </DragDropContext>
+      </TodoList>
     </>
   );
 }
@@ -120,6 +125,15 @@ a {
 }
 `;
 
+const TodoList = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 0;
+  min-height: 100vh;
+`;
+
 const Boards = styled.div`
   display: grid;
   width: 100%;
@@ -134,7 +148,13 @@ const Wrapper = styled.div`
   margin: 0 auto;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+`;
+
+const H2 = styled.h2`
+  font-size: 40px;
+  font-weight: bold;
+  color: #fff;
+  padding-bottom: 30px;
 `;
 
 export default App;
